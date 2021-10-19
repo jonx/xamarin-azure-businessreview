@@ -31,10 +31,12 @@ namespace Reviewer.Droid
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
 
-            var identity = DependencyService.Get<IIdentityService>(DependencyFetchTarget.GlobalInstance);
-            identity.UIParent = new UIParent(this);
+            //var identity = DependencyService.Get<IMicrosoftAuthService>(DependencyFetchTarget.GlobalInstance);
+            //identity.SetUIParent(new UIParent(this));
 
             LoadApplication(new App());
+
+            MicrosoftAuthService.ParentWindow = this;
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)

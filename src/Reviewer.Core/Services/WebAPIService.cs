@@ -89,7 +89,7 @@ namespace Reviewer.Core
 
         async Task<string> GetAccessBearerToken()
         {
-            var identityService = Xamarin.Forms.DependencyService.Get<IIdentityService>(Xamarin.Forms.DependencyFetchTarget.GlobalInstance);
+            var identityService = Xamarin.Forms.DependencyService.Get<IMicrosoftAuthService>(Xamarin.Forms.DependencyFetchTarget.GlobalInstance);
 
             var authResult = await identityService.GetCachedSignInToken();
             var bearerToken = authResult.AccessToken;

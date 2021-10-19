@@ -18,8 +18,11 @@ namespace Reviewer.Core
 
             DependencyService.Register<IStorageService, StorageService>();
             DependencyService.Register<IDataService, CosmosDataService>();
-
+            DependencyService.Register<IMicrosoftAuthService, MicrosoftAuthService>();
             DependencyService.Register<IAPIService, WebAPIService>();
+
+            // Initialize the Public Client Application for Microssoft Authentication.
+            DependencyService.Get<IMicrosoftAuthService>().Initialize();
 
             var tabbedPage = new TabbedPage();
 
