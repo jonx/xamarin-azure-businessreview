@@ -23,13 +23,13 @@ namespace Reviewer.Core
 
             Title = "Details";
 
-            var idService = DependencyService.Get<IIdentityService>();
+            var idService = DependencyService.Get<IMicrosoftAuthService>();
 
             Task.Run(async () =>
             {
-                var cachedResult = await idService.GetCachedSignInToken();
+                var user = await idService.OnSignInAsync();
 
-                if (cachedResult?.UniqueId == Review.AuthorId)
+                if (user?.Id == Review.AuthorId)
                     Editable = true;
                 else
                     Editable = false;

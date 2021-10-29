@@ -44,7 +44,7 @@ namespace Reviewer.Core
 
         public ICommand TakePhotoCommand { get; }
 
-        IIdentityService idService;
+        IMicrosoftAuthService idService;
 
         public EditReviewViewModel(Review theReview)
         {
@@ -59,10 +59,7 @@ namespace Reviewer.Core
             Title = "A Review";
 
             IsNew = false;
-
-            idService = DependencyService.Get<IIdentityService>();
-
-            Review.Author = idService.DisplayName;
+            RefreshLoginStatus();
 
             var thePhotos = new List<ImageSource>();
 
@@ -100,6 +97,13 @@ namespace Reviewer.Core
             Videos.Insert(0, ImageSource.FromFile("ic_movie_black"));
         }
 
+        private void RefreshLoginStatus()
+        {
+            idService = DependencyService.Get<IMicrosoftAuthService>();
+            User user = idService.OnSignInAsync().Result;
+            Review.Author = user.DisplayName;
+        }
+
         public EditReviewViewModel(string businessId, string businessName) :
             this(new Review { Id = Guid.NewGuid().ToString(), BusinessId = businessId, BusinessName = businessName })
         {
@@ -115,17 +119,17 @@ namespace Reviewer.Core
             {
                 IsBusy = true;
 
-                var authResult = await idService.GetCachedSignInToken();
+                var user = await idService.OnSignInAsync();
 
                 var webAPI = DependencyService.Get<IAPIService>();
 
                 if (IsNew)
                 {
-                    Review.AuthorId = authResult.UniqueId;
-                    await webAPI.InsertReview(Review, authResult.AccessToken);
+                    Review.AuthorId = user.Id;
+                    await webAPI.InsertReview(Review, user.Token);
                 }
                 else
-                    await webAPI.UpdateReview(Review, authResult.AccessToken);
+                    await webAPI.UpdateReview(Review, user.Token);
             }
             finally
             {

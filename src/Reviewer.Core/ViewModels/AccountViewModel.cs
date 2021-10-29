@@ -40,9 +40,9 @@ namespace Reviewer.Core
         string notLoggedInInfo = "Sign in to unlock the wonderful world of reviews!";
         string loggedInInfo = "Hiya {user}! Here are your reviews so far!";
 
-        AuthenticationResult authResult;
+        User user = null;
 
-        IIdentityService identityService;
+        IMicrosoftAuthService identityService;
 
         public AccountViewModel()
         {
@@ -53,8 +53,7 @@ namespace Reviewer.Core
             SignOutCommand = new Command(() => ExecuteSignOutCommand());
 
             Info = notLoggedInInfo;
-
-            identityService = DependencyService.Get<IIdentityService>();
+            identityService = DependencyService.Get<IMicrosoftAuthService>();
 
             Task.Run(async () => await CheckLoginStatus());
         }
@@ -71,7 +70,7 @@ namespace Reviewer.Core
             {
                 IsBusy = true;
 
-                identityService.Logout();
+                identityService.OnSignOutAsync();
 
                 LoggedIn = false;
                 Info = notLoggedInInfo;
@@ -91,14 +90,14 @@ namespace Reviewer.Core
             {
                 IsBusy = true;
 
-                authResult = await identityService.Login();
+                user = await identityService.OnSignInAsync();
             }
             finally
             {
                 IsBusy = false;
             }
 
-            if (authResult?.User == null)
+            if (user == null)
             {
                 LoggedIn = false;
                 Info = notLoggedInInfo;
@@ -107,7 +106,7 @@ namespace Reviewer.Core
             else
             {
                 LoggedIn = true;
-                Info = loggedInInfo.Replace("{user}", identityService.DisplayName);
+                Info = loggedInInfo.Replace("{user}", user.DisplayName);
 
                 await ExecuteRefreshCommand();
 
@@ -128,7 +127,7 @@ namespace Reviewer.Core
                 IsBusy = true;
 
                 var apiService = DependencyService.Get<IAPIService>();
-                Reviews = await apiService.GetReviewsForAuthor(authResult.UniqueId, authResult.AccessToken);
+                Reviews = await apiService.GetReviewsForAuthor(user.Id, user.Token);
             }
             finally
             {
@@ -144,14 +143,14 @@ namespace Reviewer.Core
             try
             {
                 IsBusy = true;
-                authResult = await identityService.GetCachedSignInToken();
+                var user = await identityService.OnSignInAsync();
 
-                if (authResult?.User != null)
+                if (user != null)
                 {
                     LoggedIn = true;
 
-                    Title = identityService.DisplayName;
-                    Info = loggedInInfo.Replace("{user}", identityService.DisplayName);
+                    Title = user.DisplayName;
+                    Info = loggedInInfo.Replace("{user}", Title);
                 }
                 else
                 {

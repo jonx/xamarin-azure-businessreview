@@ -91,8 +91,8 @@ namespace Reviewer.Core
         {
             var identityService = Xamarin.Forms.DependencyService.Get<IMicrosoftAuthService>(Xamarin.Forms.DependencyFetchTarget.GlobalInstance);
 
-            var authResult = await identityService.GetCachedSignInToken();
-            var bearerToken = authResult.AccessToken;
+            var user = await identityService.OnSignInAsync();
+            var bearerToken = user?.Token;
 
             return bearerToken;
         }

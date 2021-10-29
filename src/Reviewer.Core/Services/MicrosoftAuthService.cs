@@ -30,6 +30,8 @@ namespace Reviewer.Core
 
         //static readonly string[] Scopes = { "https://b2cbuild.onmicrosoft.com/reviewer/rvw_all" };
 
+        // check here eventually: https://github.com/Azure-Samples/active-directory-b2c-xamarin-native/blob/281a61d561933c6c464b521a0e294dcd217a28f8/UserDetailsClient/UserDetailsClient.Core/Features/LogOn/B2CAuthenticationService.cs#L75
+
         static readonly string RedirectUrl = $"msal{ClientID}://auth";
 
         private readonly string[] Scopes = { "User.Read" };

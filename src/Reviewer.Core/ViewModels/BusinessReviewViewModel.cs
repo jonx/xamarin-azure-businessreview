@@ -38,11 +38,10 @@ namespace Reviewer.Core
 
         public async Task CheckLoginStatus()
         {
-            var idService = DependencyService.Get<IIdentityService>();
-
-            var authResult = await idService.GetCachedSignInToken();
-
-            IsLoggedIn = authResult?.User != null;
+            var idService = DependencyService.Get<IMicrosoftAuthService>();
+            User user = await idService.OnSignInAsync();
+          
+            IsLoggedIn = user != null;
         }
 
         async Task ExecuteRefreshCommand()
